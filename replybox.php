@@ -70,6 +70,12 @@ final class ReplyBox
         ) );
     }
 
+    /**
+     * Prepare comments for response.
+     *
+     * @param WP_REST_Request $request
+     * @return array
+     */
     public function comments_endpoint( $request )
     {
     	$query    = new WP_Comment_Query;
@@ -89,8 +95,30 @@ final class ReplyBox
 		return array(
 			'total'    => (int) $count,
 			'pages'    => (int) $pages,
-			'comments' => $comments,
+			'comments' => $this->prepare_comments( $comments ),
 		);
+    }
+
+    /**
+     * Prepare comments for response.
+     *
+     * @param array $comments
+     * @return array
+     */
+    private function prepare_comments($comments) {
+    	foreach ( $comments as $key => $comment ) {
+    		$comments[ $key ] = array(
+    			'id'         => $comment->comment_ID,
+    			'post'       => $comment->comment_post_ID,
+    			'parent'     => $comment->comment_parent,
+    			'user_name'  => $comment->comment_author,
+    			'user_email' => $comment->comment_author_email,
+    			'content'    => $comment->comment_content,
+    			'date_gmt'   => $comment->comment_date_gmt, 
+    		);
+    	}
+
+    	return $comments;
     }
 
     /**
