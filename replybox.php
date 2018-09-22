@@ -41,7 +41,7 @@ final class ReplyBox
      */
     private function init() {
         add_action( 'rest_api_init', array( $this, 'register_api_endpoints' ) );
-        add_filter( 'comments_template', array( $this, 'comments_template' ) );
+        add_filter( 'comments_template', array( $this, 'comments_template' ), 100 );
     }
 
     /**
