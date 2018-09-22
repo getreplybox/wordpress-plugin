@@ -41,6 +41,7 @@ final class ReplyBox
      */
     private function init() {
         add_action( 'rest_api_init', array( $this, 'register_api_endpoints' ) );
+        add_filter( 'comments_template', array( $this, 'comments_template' ) );
     }
 
     /**
@@ -151,29 +152,37 @@ final class ReplyBox
     }
 
     /**
+     * Replace the default WordPress comments.
+     *
+     * @return string
+     */
+    public function comments_template() {
+    	global $post;
+
+    	wp_enqueue_script( 'replybox-js', 'https://getreplybox.test/js/embed.js', array(), null, true );
+    	wp_localize_script( 'replybox-js', 'replybox', array(
+    		'site'       => 'Won6bm0qx7',
+    		'identifier' => $post->ID,
+ 		) );
+    	
+    	return plugin_dir_path( __FILE__ ) . 'views/comments.php';
+    }
+
+    /**
      * Protected constructor to prevent creating a new instance of the
      * class via the `new` operator from outside of this class.
      */
-    private function __construct()
-    {
-        //
-    }
+    private function __construct() {}
 
     /**
      * As this class is a singleton it should not be clone-ablel
      */
-    private function __clone()
-    {
-        //
-    }
+    private function __clone() {}
 
     /**
      * As this class is a singleton it should not be able to be unserializedl
      */
-    private function __wakeup()
-    {
-        //
-    }
+    private function __wakeup() {}
 }
 
 /**
@@ -181,8 +190,7 @@ final class ReplyBox
  *
  * @return ReplyBox
  */
-function getreplybox()
-{
+function getreplybox() {
     return ReplyBox::instance();
 }
 
