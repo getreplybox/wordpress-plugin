@@ -52,7 +52,7 @@ final class ReplyBox
     {
         register_rest_route( 'replybox/v1', '/comments', array(
             'methods'  => 'GET',
-            'callback' => array( $this, 'comments_endpoint' ),
+            'callback' => array( $this, 'get_comments_endpoint' ),
             'args'     => array(
             	'page'     => array(
             		'default'           => 1,
@@ -68,15 +68,20 @@ final class ReplyBox
             	),
             ),
         ) );
+
+        register_rest_route( 'replybox/v1', '/comments', array(
+            'methods'  => 'POST',
+            'callback' => array( $this, 'post_comments_endpoint' ),
+        ) );
     }
 
     /**
-     * Prepare comments for response.
+     * GET comments API endpoint.
      *
      * @param WP_REST_Request $request
      * @return array
      */
-    public function comments_endpoint( $request )
+    public function get_comments_endpoint( $request )
     {
     	$query    = new WP_Comment_Query;
 		$comments = $query->query( array(
@@ -97,6 +102,30 @@ final class ReplyBox
 			'pages'    => (int) $pages,
 			'comments' => $this->prepare_comments( $comments ),
 		);
+    }
+
+    /**
+     * POST comments API endpoint.
+     *
+     * @param WP_REST_Request $request
+     * @return array
+     */
+    public function post_comments_endpoint( $request ) {
+    	$user = get_user_by( 'email', $request['email'] );
+
+    	$id = wp_new_comment( array(
+    		'comment_post_ID'      => (int) $request['post'],
+    		'user_id'              => $user ? $user->ID : 0,
+    		'comment_author'       => $user ? $user->display_name : $request['name'],
+    		'comment_author_email' => $request['email'],
+    		'comment_author_url'   => '',
+    		'comment_content'      => $request['content'],
+    		'comment_parent'       => (int) $request['parent'],
+    		'comment_agent'        => 'ReplyBox',
+    		'comment_type'         => '',
+    	), true );
+
+    	return $id;
     }
 
     /**
