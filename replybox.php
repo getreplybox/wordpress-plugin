@@ -40,8 +40,23 @@ final class ReplyBox
      * @return void
      */
     private function init() {
+        add_action( 'admin_menu', array( $this, 'add_admin_menu' ) );
         add_action( 'rest_api_init', array( $this, 'register_api_endpoints' ) );
         add_filter( 'comments_template', array( $this, 'comments_template' ), 100 );
+    }
+
+    /**
+     * Register the admin page.
+     */
+    public function add_admin_menu() {
+        add_submenu_page( 'options-general.php', __( 'ReplyBox', 'replybox'), __( 'ReplyBox', 'replybox'), 'manage_options', 'replybox', array( $this, 'show_admin_page' ) );
+    }
+
+    /**
+     * Render the admin page.
+     */
+    public function show_admin_page() {
+        require_once plugin_dir_path( __FILE__ ) . 'views/admin-page.php';
     }
 
     /**
