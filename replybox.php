@@ -8,7 +8,7 @@
  * Author URI: https://getreplybox.com
  */
 
-if ( ! defined('ABSPATH') ) {
+if (!defined('ABSPATH')) {
     exit;
 }
 
@@ -26,7 +26,7 @@ final class ReplyBox
      */
     public static function instance()
     {
-        if ( empty( static::$instance ) ) {
+        if (empty(static::$instance)) {
             static::$instance = new self();
             static::$instance->init();
         }
@@ -39,24 +39,27 @@ final class ReplyBox
      *
      * @return void
      */
-    private function init() {
-        add_action( 'admin_menu', array( $this, 'add_admin_menu' ) );
-        add_action( 'rest_api_init', array( $this, 'register_api_endpoints' ) );
-        add_filter( 'comments_template', array( $this, 'comments_template' ), 100 );
+    private function init()
+    {
+        add_action('admin_menu', [$this, 'add_admin_menu']);
+        add_action('rest_api_init', [$this, 'register_api_endpoints']);
+        add_filter('comments_template', [$this, 'comments_template'], 100);
     }
 
     /**
      * Register the admin page.
      */
-    public function add_admin_menu() {
-        add_submenu_page( 'options-general.php', __( 'ReplyBox', 'replybox'), __( 'ReplyBox', 'replybox'), 'manage_options', 'replybox', array( $this, 'show_admin_page' ) );
+    public function add_admin_menu()
+    {
+        add_submenu_page('options-general.php', __('ReplyBox', 'replybox'), __('ReplyBox', 'replybox'), 'manage_options', 'replybox', [$this, 'show_admin_page']);
     }
 
     /**
      * Render the admin page.
      */
-    public function show_admin_page() {
-        require_once plugin_dir_path( __FILE__ ) . 'views/admin-page.php';
+    public function show_admin_page()
+    {
+        require_once plugin_dir_path(__FILE__) . 'views/admin-page.php';
     }
 
     /**
@@ -66,29 +69,29 @@ final class ReplyBox
      */
     public function register_api_endpoints()
     {
-        register_rest_route( 'replybox/v1', '/comments', array(
+        register_rest_route('replybox/v1', '/comments', [
             'methods'  => 'GET',
-            'callback' => array( $this, 'get_comments_endpoint' ),
-            'args'     => array(
-            	'page'     => array(
-            		'default'           => 1,
-            		'validate_callback' => function( $param, $request, $key ) {
-          				return is_numeric( $param );
-        			},
-            	),
-            	'per_page' => array(
-            		'default'           => 100,
-            		'validate_callback' => function( $param, $request, $key ) {
-          				return is_numeric( $param );
-        			},
-            	),
-            ),
-        ) );
+            'callback' => [$this, 'get_comments_endpoint'],
+            'args'     => [
+                'page'     => [
+                    'default'           => 1,
+                    'validate_callback' => function ($param, $request, $key) {
+                        return is_numeric($param);
+                    },
+                ],
+                'per_page' => [
+                    'default'           => 100,
+                    'validate_callback' => function ($param, $request, $key) {
+                        return is_numeric($param);
+                    },
+                ],
+            ],
+        ]);
 
-        register_rest_route( 'replybox/v1', '/comments', array(
+        register_rest_route('replybox/v1', '/comments', [
             'methods'  => 'POST',
-            'callback' => array( $this, 'post_comments_endpoint' ),
-        ) );
+            'callback' => [$this, 'post_comments_endpoint'],
+        ]);
     }
 
     /**
@@ -97,27 +100,27 @@ final class ReplyBox
      * @param WP_REST_Request $request
      * @return array
      */
-    public function get_comments_endpoint( $request )
+    public function get_comments_endpoint($request)
     {
-    	$query    = new WP_Comment_Query;
-		$comments = $query->query( array(
-    		'orderby' => 'id',
-    		'order'   => 'asc',
-    		'number'  => $request['per_page'],
-    		'offset'  => $request['per_page'] * ( absint( $request['page'] ) - 1 ),
-    	) );
+        $query    = new WP_Comment_Query;
+        $comments = $query->query([
+            'orderby' => 'id',
+            'order'   => 'asc',
+            'number'  => $request['per_page'],
+            'offset'  => $request['per_page'] * (absint($request['page']) - 1),
+        ]);
 
-		$query = new WP_Comment_Query;
-		$count = $query->query( array(
-			'count' => true,
-		) );
-		$pages = ceil( $count / $request['per_page'] );
+        $query = new WP_Comment_Query;
+        $count = $query->query([
+            'count' => true,
+        ]);
+        $pages = ceil($count / $request['per_page']);
 
-		return array(
-			'total'    => (int) $count,
-			'pages'    => (int) $pages,
-			'comments' => $this->prepare_comments( $comments ),
-		);
+        return [
+            'total'    => (int) $count,
+            'pages'    => (int) $pages,
+            'comments' => $this->prepare_comments($comments),
+        ];
     }
 
     /**
@@ -126,22 +129,23 @@ final class ReplyBox
      * @param WP_REST_Request $request
      * @return array
      */
-    public function post_comments_endpoint( $request ) {
-    	$user = get_user_by( 'email', $request['email'] );
+    public function post_comments_endpoint($request)
+    {
+        $user = get_user_by('email', $request['email']);
 
-    	$id = wp_new_comment( array(
-    		'comment_post_ID'      => (int) $request['post'],
-    		'user_id'              => $user ? $user->ID : 0,
-    		'comment_author'       => $user ? $user->display_name : $request['name'],
-    		'comment_author_email' => $request['email'],
-    		'comment_author_url'   => '',
-    		'comment_content'      => $request['content'],
-    		'comment_parent'       => (int) $request['parent'],
-    		'comment_agent'        => 'ReplyBox',
-    		'comment_type'         => '',
-    	), true );
+        $id = wp_new_comment([
+            'comment_post_ID'      => (int) $request['post'],
+            'user_id'              => $user ? $user->ID : 0,
+            'comment_author'       => $user ? $user->display_name : $request['name'],
+            'comment_author_email' => $request['email'],
+            'comment_author_url'   => '',
+            'comment_content'      => $request['content'],
+            'comment_parent'       => (int) $request['parent'],
+            'comment_agent'        => 'ReplyBox',
+            'comment_type'         => '',
+        ], true);
 
-    	return $id;
+        return $id;
     }
 
     /**
@@ -150,20 +154,21 @@ final class ReplyBox
      * @param array $comments
      * @return array
      */
-    private function prepare_comments($comments) {
-    	foreach ( $comments as $key => $comment ) {
-    		$comments[ $key ] = array(
-    			'id'         => $comment->comment_ID,
-    			'post'       => $comment->comment_post_ID,
-    			'parent'     => $comment->comment_parent,
-    			'user_name'  => $comment->comment_author,
-    			'user_email' => $comment->comment_author_email,
-    			'content'    => $comment->comment_content,
-    			'date_gmt'   => $comment->comment_date_gmt, 
-    		);
-    	}
+    private function prepare_comments($comments)
+    {
+        foreach ($comments as $key => $comment) {
+            $comments[$key] = [
+                'id'         => $comment->comment_ID,
+                'post'       => $comment->comment_post_ID,
+                'parent'     => $comment->comment_parent,
+                'user_name'  => $comment->comment_author,
+                'user_email' => $comment->comment_author_email,
+                'content'    => $comment->comment_content,
+                'date_gmt'   => $comment->comment_date_gmt,
+            ];
+        }
 
-    	return $comments;
+        return $comments;
     }
 
     /**
@@ -171,33 +176,43 @@ final class ReplyBox
      *
      * @return string
      */
-    public function comments_template() {
-    	global $post;
+    public function comments_template()
+    {
+        global $post;
 
-    	wp_enqueue_script( 'replybox-js', 'https://getreplybox.test/js/embed.js', array(), null, true );
-    	wp_localize_script( 'replybox-js', 'replybox', array(
-    		'site'       => 'Won6bm0qx7',
-    		'identifier' => $post->ID,
- 		) );
-    	
-    	return plugin_dir_path( __FILE__ ) . 'views/comments.php';
+        wp_enqueue_script('replybox-js', 'https://getreplybox.test/js/embed.js', [], null, true);
+        wp_localize_script('replybox-js', 'replybox', [
+            'site'       => 'Won6bm0qx7',
+            'identifier' => $post->ID,
+        ]);
+
+        return plugin_dir_path(__FILE__) . 'views/comments.php';
     }
 
     /**
      * Protected constructor to prevent creating a new instance of the
      * class via the `new` operator from outside of this class.
      */
-    private function __construct() {}
+    private function __construct()
+    {
+        //
+    }
 
     /**
      * As this class is a singleton it should not be clone-ablel
      */
-    private function __clone() {}
+    private function __clone()
+    {
+        //
+    }
 
     /**
      * As this class is a singleton it should not be able to be unserializedl
      */
-    private function __wakeup() {}
+    private function __wakeup()
+    {
+        //
+    }
 }
 
 /**
@@ -205,7 +220,8 @@ final class ReplyBox
  *
  * @return ReplyBox
  */
-function getreplybox() {
+function getreplybox()
+{
     return ReplyBox::instance();
 }
 
