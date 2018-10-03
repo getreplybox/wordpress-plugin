@@ -42,6 +42,7 @@ final class ReplyBox
     private function init()
     {
         add_action('admin_menu', [$this, 'add_admin_menu']);
+        add_action('admin_post_replybox_settings', [$this, 'save_form']);
         add_action('rest_api_init', [$this, 'register_api_endpoints']);
         add_filter('comments_template', [$this, 'comments_template'], 100);
     }
@@ -60,6 +61,31 @@ final class ReplyBox
     public function show_admin_page()
     {
         require_once plugin_dir_path(__FILE__) . 'views/admin-page.php';
+    }
+
+    /**
+     * Save admin settings.
+     *
+     * @return void
+     */
+    public function save_form()
+    {
+        check_admin_referer('replybox_settings');
+
+        $settings = [
+            'site' => sanitize_text_field($_POST['site_id']),
+        ];
+
+        update_option('replybox', $settings);
+
+        if (!isset($_POST['_wp_http_referer'])) {
+            $_POST['_wp_http_referer'] = wp_login_url();
+        }
+
+        $url = sanitize_text_field(wp_unslash($_POST['_wp_http_referer']));
+
+        wp_safe_redirect(urldecode($url));
+        exit;
     }
 
     /**
