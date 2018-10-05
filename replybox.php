@@ -44,7 +44,48 @@ final class ReplyBox
         add_action('admin_menu', [$this, 'add_admin_menu']);
         add_action('admin_post_replybox_settings', [$this, 'save_form']);
         add_action('rest_api_init', [$this, 'register_api_endpoints']);
-        add_filter('comments_template', [$this, 'comments_template'], 100);
+
+        if ($this->replace_comments_template()) {
+            add_filter('comments_template', [$this, 'comments_template'], 100);
+        }
+    }
+
+    /**
+     * Get all options.
+     *
+     * @return array
+     */
+    private function get_options()
+    {
+        return get_option('replybox', []);
+    }
+
+    /**
+     * Get a single option.
+     *
+     * @param string $key
+     * @param mixed $default
+     * @return mixed
+     */
+    private function get_option($key, $default = '')
+    {
+        $options = $this->get_options();
+
+        if (isset($options[$key])) {
+            return $options[$key];
+        }
+
+        return $default;
+    }
+
+    /**
+     * Should we overwrite the comments template?
+     *
+     * @return bool
+     */
+    private function replace_comments_template()
+    {
+        return !empty($this->get_option('site_id'));
     }
 
     /**
@@ -73,7 +114,7 @@ final class ReplyBox
         check_admin_referer('replybox_settings');
 
         $settings = [
-            'site' => sanitize_text_field($_POST['site_id']),
+            'site_id' => sanitize_text_field($_POST['site_id']),
         ];
 
         update_option('replybox', $settings);
@@ -208,7 +249,7 @@ final class ReplyBox
 
         wp_enqueue_script('replybox-js', 'https://getreplybox.test/js/embed.js', [], null, true);
         wp_localize_script('replybox-js', 'replybox', [
-            'site'       => 'Won6bm0qx7',
+            'site'       => $this->get_option('site_id'),
             'identifier' => $post->ID,
         ]);
 
