@@ -20,6 +20,11 @@ final class ReplyBox
     private static $instance;
 
     /**
+     * @var array
+     */
+    private $options = [];
+
+    /**
      * Get ReplyBox instance.
      *
      * @return ReplyBox
@@ -41,6 +46,8 @@ final class ReplyBox
      */
     private function init()
     {
+        $this->options = $this->get_options();
+
         add_action('admin_menu', [$this, 'add_admin_menu']);
         add_action('admin_post_replybox_settings', [$this, 'save_form']);
         add_action('rest_api_init', [$this, 'register_api_endpoints']);
@@ -48,6 +55,8 @@ final class ReplyBox
         if ($this->replace_comments_template()) {
             add_filter('comments_template', [$this, 'comments_template'], 100);
         }
+
+        register_activation_hook(__FILE__, [$this, 'activate']);
     }
 
     /**
@@ -61,6 +70,16 @@ final class ReplyBox
     }
 
     /**
+     * Save the options.
+     *
+     * @return void
+     */
+    private function save_options()
+    {
+        update_option('replybox', $this->options);
+    }
+
+    /**
      * Get a single option.
      *
      * @param string $key
@@ -69,13 +88,25 @@ final class ReplyBox
      */
     private function get_option($key, $default = '')
     {
-        $options = $this->get_options();
-
-        if (isset($options[$key])) {
-            return $options[$key];
+        if (isset($this->options[$key])) {
+            return $this->options[$key];
         }
 
         return $default;
+    }
+
+    /**
+     * Update a single option.
+     *
+     * @param string $key
+     * @param string $value
+     * @return $this
+     */
+    private function update_option($key, $value)
+    {
+        $this->options[$key] = $value;
+
+        return $this;
     }
 
     /**
@@ -86,6 +117,18 @@ final class ReplyBox
     private function replace_comments_template()
     {
         return !empty($this->get_option('site_id'));
+    }
+
+    /**
+     * Generate a new secure token.
+     *
+     * @return string
+     */
+    private function generate_token()
+    {
+        $token = md5(uniqid(rand(), true));
+
+        $this->update_option('secure_token', $token)->save_options();
     }
 
     /**
@@ -113,11 +156,9 @@ final class ReplyBox
     {
         check_admin_referer('replybox_settings');
 
-        $settings = [
-            'site_id' => sanitize_text_field($_POST['site_id']),
-        ];
+        $site_id = sanitize_text_field($_POST['site_id']);
 
-        update_option('replybox', $settings);
+        $this->update_option('site_id', $site_id)->save_options();
 
         if (!isset($_POST['_wp_http_referer'])) {
             $_POST['_wp_http_referer'] = wp_login_url();
@@ -254,6 +295,18 @@ final class ReplyBox
         ]);
 
         return plugin_dir_path(__FILE__) . 'views/comments.php';
+    }
+
+    /**
+     * Plugin activated.
+     *
+     * @return void
+     */
+    public function activate()
+    {
+        if (empty($this->get_option('secure_token'))) {
+            $this->generate_token();
+        }
     }
 
     /**
