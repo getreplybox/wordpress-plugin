@@ -280,6 +280,16 @@ final class ReplyBox
     }
 
     /**
+     * Get the URL of the embed script.
+     *
+     * @return string
+     */
+    private function get_embed_url()
+    {
+        return apply_filters('replybox_embed_url', 'https://getreplybox.test/js/embed.js');
+    }
+
+    /**
      * Replace the default WordPress comments.
      *
      * @return string
@@ -288,7 +298,7 @@ final class ReplyBox
     {
         global $post;
 
-        wp_enqueue_script('replybox-js', 'https://getreplybox.test/js/embed.js', [], null, true);
+        wp_enqueue_script('replybox-js', $this->get_embed_url(), [], null, true);
         wp_localize_script('replybox-js', 'replybox', [
             'site'       => $this->get_option('site_id'),
             'identifier' => $post->ID,
