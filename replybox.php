@@ -52,7 +52,7 @@ final class ReplyBox
         add_action('admin_post_replybox_settings', [$this, 'save_form']);
         add_action('rest_api_init', [$this, 'register_api_endpoints']);
 
-        if ($this->replace_comments_template()) {
+        if ($this->replace_comments()) {
             add_filter('comments_template', [$this, 'comments_template'], 100);
         }
 
@@ -114,9 +114,11 @@ final class ReplyBox
      *
      * @return bool
      */
-    private function replace_comments_template()
+    private function replace_comments()
     {
-        return !empty($this->get_option('site_id'));
+        $return = !empty($this->get_option('site_id'));
+
+        return apply_filters('replybox_replace_comments', $return);
     }
 
     /**
