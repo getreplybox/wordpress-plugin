@@ -24,9 +24,6 @@
     				</th>
     				<td>
     					<input type="text" name="secure_token" id="secure_token" value="<?php echo $this->get_option('secure_token'); ?>" class="regular-text" readonly>
-    					<p class="description">
-    						Description of secure token.
-    					</p>
     				</td>
     			</tr>
     		</tbody>
