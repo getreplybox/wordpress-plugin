@@ -195,12 +195,22 @@ final class ReplyBox
                         return is_numeric($param);
                     },
                 ],
+                'token' => [
+                    'required' => true,
+                    'type'     => 'string'
+                ],
             ],
         ]);
 
         register_rest_route('replybox/v1', '/comments', [
             'methods'  => 'POST',
             'callback' => [$this, 'post_comments_endpoint'],
+            'args'     => [
+                'token' => [
+                    'required' => true,
+                    'type'     => 'string'
+                ],
+            ],
         ]);
     }
 
@@ -212,6 +222,10 @@ final class ReplyBox
      */
     public function get_comments_endpoint($request)
     {
+        if ($this->get_option('secure_token') !== $request['token']) {
+            return new WP_Error('token_incorrect', __('Sorry, incorrect secure token.', 'replybox'), ['status' => 403]);
+        }
+
         $query    = new WP_Comment_Query;
         $comments = $query->query([
             'orderby' => 'id',
@@ -241,6 +255,10 @@ final class ReplyBox
      */
     public function post_comments_endpoint($request)
     {
+        if ($this->get_option('secure_token') !== $request['token']) {
+            return new WP_Error('token_incorrect', __('Sorry, incorrect secure token.', 'replybox'), ['status' => 403]);
+        }
+
         $user = get_user_by('email', $request['email']);
 
         $id = wp_new_comment([
