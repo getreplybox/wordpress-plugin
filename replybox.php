@@ -261,7 +261,7 @@ final class ReplyBox
 
         $user = get_user_by('email', $request['email']);
 
-        $id = wp_new_comment([
+        $id = wp_insert_comment([
             'comment_post_ID'      => (int) $request['post'],
             'user_id'              => $user ? $user->ID : 0,
             'comment_author'       => $user ? $user->display_name : $request['name'],
@@ -270,7 +270,7 @@ final class ReplyBox
             'comment_content'      => $request['content'],
             'comment_parent'       => (int) $request['parent'],
             'comment_agent'        => 'ReplyBox',
-            'comment_type'         => '',
+            'comment_approved'     => $request['spam'] ? 'spam' : 1,
         ], true);
 
         return $id;
