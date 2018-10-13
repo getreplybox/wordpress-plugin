@@ -292,6 +292,7 @@ final class ReplyBox
                 'user_name'  => $comment->comment_author,
                 'user_email' => $comment->comment_author_email,
                 'content'    => $comment->comment_content,
+                'approved'   => $comment->comment_approved,
                 'date_gmt'   => $comment->comment_date_gmt,
             ];
         }
