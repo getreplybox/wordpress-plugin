@@ -54,6 +54,11 @@ final class ReplyBox {
 			add_filter( 'comments_template', array( $this, 'comments_template' ), 100 );
 		}
 
+		add_filter( 'manage_edit-comments_columns', array( $this, 'comments_columns' ) );
+		add_filter( 'bulk_actions-edit-comments', array( $this, 'comments_bulk_actions' ) );
+		add_filter( 'comment_row_actions', array( $this, 'comments_row_actions' ) );
+		add_filter( 'comment_status_links', array( $this, 'comments_status_links' ) );
+
 		register_activation_hook( __FILE__, array( $this, 'activate' ) );
 	}
 
@@ -330,6 +335,43 @@ final class ReplyBox {
 		if ( empty( $this->get_option( 'secure_token' ) ) ) {
 			$this->generate_token();
 		}
+	}
+
+	public function comments_columns( $columns ) {
+		unset($columns['cb']);
+
+		return $columns;
+	}
+
+	/**
+	 * Hide bulk actions.
+	 *
+	 * @return array
+	 */
+	public function comments_bulk_actions() {
+		return array();
+	}
+
+	/**
+	 * Hide row actions.
+	 *
+	 * @return array
+	 */
+	public function comments_row_actions() {
+		return array();
+	}
+
+	/**
+	 * Don't show pending comments status.
+	 *
+	 * @param array $status_links
+	 *
+	 * @return array
+	 */
+	public function comments_status_links( $status_links ) {
+		unset($status_links['moderated']);
+
+		return $status_links;
 	}
 
 	/**
