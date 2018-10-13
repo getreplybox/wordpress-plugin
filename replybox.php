@@ -271,6 +271,8 @@ final class ReplyBox
             'comment_parent'       => (int) $request['parent'],
             'comment_agent'        => 'ReplyBox',
             'comment_approved'     => $request['spam'] ? 'spam' : 1,
+            'comment_date_gmt'     => $request['date_gmt'],
+            'comment_date'         => get_date_from_gmt($request['date_gmt']),
         ], true);
 
         return $id;
