@@ -54,6 +54,7 @@ final class ReplyBox {
 			add_filter( 'comments_template', array( $this, 'comments_template' ), 100 );
 		}
 
+		add_filter( 'wp_count_comments', array( $this, 'count_comments' ), 10, 2 );
 		add_filter( 'manage_edit-comments_columns', array( $this, 'comments_columns' ) );
 		add_filter( 'bulk_actions-edit-comments', array( $this, 'comments_bulk_actions' ) );
 		add_filter( 'comment_row_actions', array( $this, 'comments_row_actions' ) );
@@ -337,8 +338,39 @@ final class ReplyBox {
 		}
 	}
 
+	/**
+	 * Remove pending from comment counts.
+	 *
+	 * @param array $stats
+	 * @param int   $post_id
+	 *
+	 * @return bool|mixed|object
+	 */
+	public function count_comments( $stats, $post_id ) {
+		$count = wp_cache_get( "comments-{$post_id}", 'counts' );
+		if ( false !== $count ) {
+			return $count;
+		}
+
+		$stats              = get_comment_count( $post_id );
+		$stats['moderated'] = 0;
+		unset( $stats['awaiting_moderation'] );
+
+		$stats_object = (object) $stats;
+		wp_cache_set( "comments-{$post_id}", $stats_object, 'counts' );
+
+		return $stats_object;
+	}
+
+	/**
+	 * Remove checkboxes from comments table.
+	 *
+	 * @param array $columns
+	 *
+	 * @return array
+	 */
 	public function comments_columns( $columns ) {
-		unset($columns['cb']);
+		unset( $columns['cb'] );
 
 		return $columns;
 	}
@@ -369,7 +401,7 @@ final class ReplyBox {
 	 * @return array
 	 */
 	public function comments_status_links( $status_links ) {
-		unset($status_links['moderated']);
+		unset( $status_links['moderated'] );
 
 		return $status_links;
 	}
