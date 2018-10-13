@@ -307,7 +307,7 @@ final class ReplyBox
      */
     private function get_embed_url()
     {
-        return apply_filters('replybox_embed_url', 'https://getreplybox.test/js/embed.js');
+        return apply_filters('replybox_embed_url', 'https://cdn.getreplybox.com/js/embed.js');
     }
 
     /**
