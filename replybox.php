@@ -54,6 +54,7 @@ final class ReplyBox {
 			add_filter( 'comments_template', array( $this, 'comments_template' ), 100 );
 		}
 
+		add_action( 'admin_bar_menu', array( $this, 'remove_from_admin_bar' ), 999 );
 		add_filter( 'wp_count_comments', array( $this, 'count_comments' ), 10, 2 );
 		add_filter( 'manage_edit-comments_columns', array( $this, 'comments_columns' ) );
 		add_filter( 'bulk_actions-edit-comments', array( $this, 'comments_bulk_actions' ) );
@@ -336,6 +337,15 @@ final class ReplyBox {
 		if ( empty( $this->get_option( 'secure_token' ) ) ) {
 			$this->generate_token();
 		}
+	}
+
+	/**
+	 * Remove comments from the admin bar.
+	 *
+	 * @param WP_Admin_Bar $wp_admin_bar
+	 */
+	public function remove_from_admin_bar( $wp_admin_bar ) {
+		$wp_admin_bar->remove_node( 'comments' );
 	}
 
 	/**
