@@ -8,364 +8,351 @@
  * Author URI: https://getreplybox.com
  */
 
-if (!defined('ABSPATH')) {
-    exit;
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
 }
 
-final class ReplyBox
-{
-    /**
-     * @var ReplyBox|null
-     */
-    private static $instance;
+final class ReplyBox {
 
-    /**
-     * @var array
-     */
-    private $options = [];
+	/**
+	 * @var ReplyBox|null
+	 */
+	private static $instance;
 
-    /**
-     * Get ReplyBox instance.
-     *
-     * @return ReplyBox
-     */
-    public static function instance()
-    {
-        if (empty(static::$instance)) {
-            static::$instance = new self();
-            static::$instance->init();
-        }
+	/**
+	 * @var array
+	 */
+	private $options = array();
 
-        return static::$instance;
-    }
+	/**
+	 * Get ReplyBox instance.
+	 *
+	 * @return ReplyBox
+	 */
+	public static function instance() {
+		if ( empty( static::$instance ) ) {
+			static::$instance = new self();
+			static::$instance->init();
+		}
 
-    /**
-     * Init ReplyBox class.
-     *
-     * @return void
-     */
-    private function init()
-    {
-        $this->options = $this->get_options();
+		return static::$instance;
+	}
 
-        add_action('admin_menu', [$this, 'add_admin_menu']);
-        add_action('admin_post_replybox_settings', [$this, 'save_form']);
-        add_action('rest_api_init', [$this, 'register_api_endpoints']);
+	/**
+	 * Init ReplyBox class.
+	 *
+	 * @return void
+	 */
+	private function init() {
+		$this->options = $this->get_options();
 
-        if ($this->replace_comments()) {
-            add_filter('comments_template', [$this, 'comments_template'], 100);
-        }
+		add_action( 'admin_menu', array( $this, 'add_admin_menu' ) );
+		add_action( 'admin_post_replybox_settings', array( $this, 'save_form' ) );
+		add_action( 'rest_api_init', array( $this, 'register_api_endpoints' ) );
 
-        register_activation_hook(__FILE__, [$this, 'activate']);
-    }
+		if ( $this->replace_comments() ) {
+			add_filter( 'comments_template', array( $this, 'comments_template' ), 100 );
+		}
 
-    /**
-     * Get all options.
-     *
-     * @return array
-     */
-    private function get_options()
-    {
-        return get_option('replybox', []);
-    }
+		register_activation_hook( __FILE__, array( $this, 'activate' ) );
+	}
 
-    /**
-     * Save the options.
-     *
-     * @return void
-     */
-    private function save_options()
-    {
-        update_option('replybox', $this->options);
-    }
+	/**
+	 * Get all options.
+	 *
+	 * @return array
+	 */
+	private function get_options() {
+		return get_option( 'replybox', array() );
+	}
 
-    /**
-     * Get a single option.
-     *
-     * @param string $key
-     * @param mixed $default
-     * @return mixed
-     */
-    private function get_option($key, $default = '')
-    {
-        if (isset($this->options[$key])) {
-            return $this->options[$key];
-        }
+	/**
+	 * Save the options.
+	 *
+	 * @return void
+	 */
+	private function save_options() {
+		update_option( 'replybox', $this->options );
+	}
 
-        return $default;
-    }
+	/**
+	 * Get a single option.
+	 *
+	 * @param string $key
+	 * @param mixed  $default
+	 *
+	 * @return mixed
+	 */
+	private function get_option( $key, $default = '' ) {
+		if ( isset( $this->options[ $key ] ) ) {
+			return $this->options[ $key ];
+		}
 
-    /**
-     * Update a single option.
-     *
-     * @param string $key
-     * @param string $value
-     * @return $this
-     */
-    private function update_option($key, $value)
-    {
-        $this->options[$key] = $value;
+		return $default;
+	}
 
-        return $this;
-    }
+	/**
+	 * Update a single option.
+	 *
+	 * @param string $key
+	 * @param string $value
+	 *
+	 * @return $this
+	 */
+	private function update_option( $key, $value ) {
+		$this->options[ $key ] = $value;
 
-    /**
-     * Should we overwrite the comments template?
-     *
-     * @return bool
-     */
-    private function replace_comments()
-    {
-        $return = !empty($this->get_option('site_id'));
+		return $this;
+	}
 
-        return apply_filters('replybox_replace_comments', $return);
-    }
+	/**
+	 * Should we overwrite the comments template?
+	 *
+	 * @return bool
+	 */
+	private function replace_comments() {
+		$return = ! empty( $this->get_option( 'site_id' ) );
 
-    /**
-     * Generate a new secure token.
-     *
-     * @return string
-     */
-    private function generate_token()
-    {
-        $token = md5(uniqid(rand(), true));
+		return apply_filters( 'replybox_replace_comments', $return );
+	}
 
-        $this->update_option('secure_token', $token)->save_options();
-    }
+	/**
+	 * Generate a new secure token.
+	 *
+	 * @return string
+	 */
+	private function generate_token() {
+		$token = md5( uniqid( rand(), true ) );
 
-    /**
-     * Register the admin page.
-     */
-    public function add_admin_menu()
-    {
-        add_submenu_page('options-general.php', __('ReplyBox', 'replybox'), __('ReplyBox', 'replybox'), 'manage_options', 'replybox', [$this, 'show_admin_page']);
-    }
+		$this->update_option( 'secure_token', $token )->save_options();
+	}
 
-    /**
-     * Render the admin page.
-     */
-    public function show_admin_page()
-    {
-        require_once plugin_dir_path(__FILE__) . 'views/admin-page.php';
-    }
+	/**
+	 * Register the admin page.
+	 */
+	public function add_admin_menu() {
+		add_submenu_page( 'options-general.php', __( 'ReplyBox', 'replybox' ), __( 'ReplyBox', 'replybox' ),
+			'manage_options', 'replybox', array( $this, 'show_admin_page' ) );
+	}
 
-    /**
-     * Save admin settings.
-     *
-     * @return void
-     */
-    public function save_form()
-    {
-        check_admin_referer('replybox_settings');
+	/**
+	 * Render the admin page.
+	 */
+	public function show_admin_page() {
+		require_once plugin_dir_path( __FILE__ ) . 'views/admin-page.php';
+	}
 
-        $site_id = sanitize_text_field($_POST['site_id']);
+	/**
+	 * Save admin settings.
+	 *
+	 * @return void
+	 */
+	public function save_form() {
+		check_admin_referer( 'replybox_settings' );
 
-        $this->update_option('site_id', $site_id)->save_options();
+		$site_id = sanitize_text_field( $_POST['site_id'] );
 
-        if (!isset($_POST['_wp_http_referer'])) {
-            $_POST['_wp_http_referer'] = wp_login_url();
-        }
+		$this->update_option( 'site_id', $site_id )->save_options();
 
-        $url = sanitize_text_field(wp_unslash($_POST['_wp_http_referer']));
+		if ( ! isset( $_POST['_wp_http_referer'] ) ) {
+			$_POST['_wp_http_referer'] = wp_login_url();
+		}
 
-        wp_safe_redirect(urldecode($url));
-        exit;
-    }
+		$url = sanitize_text_field( wp_unslash( $_POST['_wp_http_referer'] ) );
 
-    /**
-     * Register our API endpoints.
-     *
-     * @return void
-     */
-    public function register_api_endpoints()
-    {
-        register_rest_route('replybox/v1', '/comments', [
-            'methods'  => 'GET',
-            'callback' => [$this, 'get_comments_endpoint'],
-            'args'     => [
-                'page'     => [
-                    'default'           => 1,
-                    'validate_callback' => function ($param, $request, $key) {
-                        return is_numeric($param);
-                    },
-                ],
-                'per_page' => [
-                    'default'           => 100,
-                    'validate_callback' => function ($param, $request, $key) {
-                        return is_numeric($param);
-                    },
-                ],
-                'token' => [
-                    'required' => true,
-                    'type'     => 'string'
-                ],
-            ],
-        ]);
+		wp_safe_redirect( urldecode( $url ) );
+		exit;
+	}
 
-        register_rest_route('replybox/v1', '/comments', [
-            'methods'  => 'POST',
-            'callback' => [$this, 'post_comments_endpoint'],
-            'args'     => [
-                'token' => [
-                    'required' => true,
-                    'type'     => 'string'
-                ],
-            ],
-        ]);
-    }
+	/**
+	 * Register our API endpoints.
+	 *
+	 * @return void
+	 */
+	public function register_api_endpoints() {
+		register_rest_route( 'replybox/v1', '/comments', array(
+			'methods'  => 'GET',
+			'callback' => array( $this, 'get_comments_endpoint' ),
+			'args'     => array(
+				'page'     => array(
+					'default'           => 1,
+					'validate_callback' => function ( $param ) {
+						return is_numeric( $param );
+					},
+				),
+				'per_page' => array(
+					'default'           => 100,
+					'validate_callback' => function ( $param ) {
+						return is_numeric( $param );
+					},
+				),
+				'token'    => array(
+					'required' => true,
+					'type'     => 'string',
+				),
+			),
+		) );
 
-    /**
-     * GET comments API endpoint.
-     *
-     * @param WP_REST_Request $request
-     * @return array
-     */
-    public function get_comments_endpoint($request)
-    {
-        if ($this->get_option('secure_token') !== $request['token']) {
-            return new WP_Error('token_incorrect', __('Sorry, incorrect secure token.', 'replybox'), ['status' => 403]);
-        }
+		register_rest_route( 'replybox/v1', '/comments', array(
+			'methods'  => 'POST',
+			'callback' => array( $this, 'post_comments_endpoint' ),
+			'args'     => array(
+				'token' => array(
+					'required' => true,
+					'type'     => 'string',
+				),
+			),
+		) );
+	}
 
-        $query    = new WP_Comment_Query;
-        $comments = $query->query([
-            'orderby' => 'id',
-            'order'   => 'asc',
-            'number'  => $request['per_page'],
-            'offset'  => $request['per_page'] * (absint($request['page']) - 1),
-        ]);
+	/**
+	 * GET comments API endpoint.
+	 *
+	 * @param WP_REST_Request $request
+	 *
+	 * @return array|WP_Error
+	 */
+	public function get_comments_endpoint( $request ) {
+		if ( $this->get_option( 'secure_token' ) !== $request['token'] ) {
+			return new WP_Error( 'token_incorrect', __( 'Sorry, incorrect secure token.', 'replybox' ),
+				array( 'status' => 403 ) );
+		}
 
-        $query = new WP_Comment_Query;
-        $count = $query->query([
-            'count' => true,
-        ]);
-        $pages = ceil($count / $request['per_page']);
+		$query    = new WP_Comment_Query;
+		$comments = $query->query( array(
+			'orderby' => 'id',
+			'order'   => 'asc',
+			'number'  => $request['per_page'],
+			'offset'  => $request['per_page'] * ( absint( $request['page'] ) - 1 ),
+		) );
 
-        return [
-            'total'    => (int) $count,
-            'pages'    => (int) $pages,
-            'comments' => $this->prepare_comments($comments),
-        ];
-    }
+		$query = new WP_Comment_Query;
+		$count = $query->query( array(
+			'count' => true,
+		) );
+		$pages = ceil( $count / $request['per_page'] );
 
-    /**
-     * POST comments API endpoint.
-     *
-     * @param WP_REST_Request $request
-     * @return array
-     */
-    public function post_comments_endpoint($request)
-    {
-        if ($this->get_option('secure_token') !== $request['token']) {
-            return new WP_Error('token_incorrect', __('Sorry, incorrect secure token.', 'replybox'), ['status' => 403]);
-        }
+		return array(
+			'total'    => (int) $count,
+			'pages'    => (int) $pages,
+			'comments' => $this->prepare_comments( $comments ),
+		);
+	}
 
-        $user = get_user_by('email', $request['email']);
+	/**
+	 * POST comments API endpoint.
+	 *
+	 * @param WP_REST_Request $request
+	 *
+	 * @return array|WP_Error
+	 */
+	public function post_comments_endpoint( $request ) {
+		if ( $this->get_option( 'secure_token' ) !== $request['token'] ) {
+			return new WP_Error( 'token_incorrect', __( 'Sorry, incorrect secure token.', 'replybox' ),
+				array( 'status' => 403 ) );
+		}
 
-        $id = wp_insert_comment([
-            'comment_post_ID'      => (int) $request['post'],
-            'user_id'              => $user ? $user->ID : 0,
-            'comment_author'       => $user ? $user->display_name : $request['name'],
-            'comment_author_email' => $request['email'],
-            'comment_author_url'   => '',
-            'comment_content'      => $request['content'],
-            'comment_parent'       => (int) $request['parent'],
-            'comment_agent'        => 'ReplyBox',
-            'comment_approved'     => $request['spam'] ? 'spam' : 1,
-            'comment_date_gmt'     => $request['date_gmt'],
-            'comment_date'         => get_date_from_gmt($request['date_gmt']),
-        ], true);
+		$user = get_user_by( 'email', $request['email'] );
 
-        return $id;
-    }
+		$id = wp_insert_comment( array(
+			'comment_post_ID'      => (int) $request['post'],
+			'user_id'              => $user ? $user->ID : 0,
+			'comment_author'       => $user ? $user->display_name : $request['name'],
+			'comment_author_email' => $request['email'],
+			'comment_author_url'   => '',
+			'comment_content'      => $request['content'],
+			'comment_parent'       => (int) $request['parent'],
+			'comment_agent'        => 'ReplyBox',
+			'comment_approved'     => $request['spam'] ? 'spam' : 1,
+			'comment_date_gmt'     => $request['date_gmt'],
+			'comment_date'         => get_date_from_gmt( $request['date_gmt'] ),
+		), true );
 
-    /**
-     * Prepare comments for response.
-     *
-     * @param array $comments
-     * @return array
-     */
-    private function prepare_comments($comments)
-    {
-        foreach ($comments as $key => $comment) {
-            $comments[$key] = [
-                'id'         => $comment->comment_ID,
-                'post'       => $comment->comment_post_ID,
-                'parent'     => $comment->comment_parent,
-                'user_name'  => $comment->comment_author,
-                'user_email' => $comment->comment_author_email,
-                'content'    => $comment->comment_content,
-                'approved'   => $comment->comment_approved,
-                'date_gmt'   => $comment->comment_date_gmt,
-            ];
-        }
+		return $id;
+	}
 
-        return $comments;
-    }
+	/**
+	 * Prepare comments for response.
+	 *
+	 * @param array $comments
+	 *
+	 * @return array
+	 */
+	private function prepare_comments( $comments ) {
+		foreach ( $comments as $key => $comment ) {
+			$comments[ $key ] = array(
+				'id'         => $comment->comment_ID,
+				'post'       => $comment->comment_post_ID,
+				'parent'     => $comment->comment_parent,
+				'user_name'  => $comment->comment_author,
+				'user_email' => $comment->comment_author_email,
+				'content'    => $comment->comment_content,
+				'approved'   => $comment->comment_approved,
+				'date_gmt'   => $comment->comment_date_gmt,
+			);
+		}
 
-    /**
-     * Get the URL of the embed script.
-     *
-     * @return string
-     */
-    private function get_embed_url()
-    {
-        return apply_filters('replybox_embed_url', 'https://cdn.getreplybox.com/js/embed.js');
-    }
+		return $comments;
+	}
 
-    /**
-     * Replace the default WordPress comments.
-     *
-     * @return string
-     */
-    public function comments_template()
-    {
-        global $post;
+	/**
+	 * Get the URL of the embed script.
+	 *
+	 * @return string
+	 */
+	private function get_embed_url() {
+		return apply_filters( 'replybox_embed_url', 'https://cdn.getreplybox.com/js/embed.js' );
+	}
 
-        wp_enqueue_script('replybox-js', $this->get_embed_url(), [], null, true);
-        wp_localize_script('replybox-js', 'replybox', [
-            'site'       => $this->get_option('site_id'),
-            'identifier' => $post->ID,
-        ]);
+	/**
+	 * Replace the default WordPress comments.
+	 *
+	 * @return string
+	 */
+	public function comments_template() {
+		global $post;
 
-        return plugin_dir_path(__FILE__) . 'views/comments.php';
-    }
+		wp_enqueue_script( 'replybox-js', $this->get_embed_url(), array(), null, true );
+		wp_localize_script( 'replybox-js', 'replybox', array(
+			'site'       => $this->get_option( 'site_id' ),
+			'identifier' => $post->ID,
+		) );
 
-    /**
-     * Plugin activated.
-     *
-     * @return void
-     */
-    public function activate()
-    {
-        if (empty($this->get_option('secure_token'))) {
-            $this->generate_token();
-        }
-    }
+		return plugin_dir_path( __FILE__ ) . 'views/comments.php';
+	}
 
-    /**
-     * Protected constructor to prevent creating a new instance of the
-     * class via the `new` operator from outside of this class.
-     */
-    private function __construct()
-    {
-        //
-    }
+	/**
+	 * Plugin activated.
+	 *
+	 * @return void
+	 */
+	public function activate() {
+		if ( empty( $this->get_option( 'secure_token' ) ) ) {
+			$this->generate_token();
+		}
+	}
 
-    /**
-     * As this class is a singleton it should not be clone-ablel
-     */
-    private function __clone()
-    {
-        //
-    }
+	/**
+	 * Protected constructor to prevent creating a new instance of the
+	 * class via the `new` operator from outside of this class.
+	 */
+	private function __construct() {
+		//
+	}
 
-    /**
-     * As this class is a singleton it should not be able to be unserializedl
-     */
-    private function __wakeup()
-    {
-        //
-    }
+	/**
+	 * As this class is a singleton it should not be clone-able.
+	 */
+	private function __clone() {
+		//
+	}
+
+	/**
+	 * As this class is a singleton it should not be able to be unserialized.
+	 */
+	private function __wakeup() {
+		//
+	}
 }
 
 /**
@@ -373,9 +360,8 @@ final class ReplyBox
  *
  * @return ReplyBox
  */
-function getreplybox()
-{
-    return ReplyBox::instance();
+function getreplybox() {
+	return ReplyBox::instance();
 }
 
 // Let's go!
