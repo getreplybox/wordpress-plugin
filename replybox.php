@@ -227,6 +227,7 @@ final class ReplyBox {
 
 		$query    = new WP_Comment_Query;
 		$comments = $query->query( array(
+			'type'    => 'comment',
 			'orderby' => 'id',
 			'order'   => 'asc',
 			'number'  => $request['per_page'],
@@ -235,6 +236,7 @@ final class ReplyBox {
 
 		$query = new WP_Comment_Query;
 		$count = $query->query( array(
+			'type'  => 'comment',
 			'count' => true,
 		) );
 		$pages = ceil( $count / $request['per_page'] );
