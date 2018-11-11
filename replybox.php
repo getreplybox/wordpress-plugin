@@ -276,6 +276,8 @@ final class ReplyBox {
 			'comment_date'         => get_date_from_gmt( $request['date_gmt'] ),
 		), true );
 
+		add_comment_meta( $id, 'replybox_id', (int) $request['id'], true );
+
 		return $id;
 	}
 
