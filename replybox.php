@@ -1,8 +1,8 @@
 <?php
 /**
  * Plugin Name: ReplyBox
- * Plugin URI: https://getreplybox.com/
- * Description: Comments
+ * Plugin URI: https://getreplybox.com
+ * Description: A simple, honest comment system which works everywhere. No ads, no dodgy affiliate links, no fluff.
  * Version: 0.1
  * Author: ReplyBox
  * Author URI: https://getreplybox.com
