@@ -118,9 +118,9 @@ final class ReplyBox {
 	 * @return bool
 	 */
 	private function replace_comments() {
-		$return = ! empty( $this->get_option( 'site_id' ) );
+		$value = $this->get_option( 'site_id' );
 
-		return apply_filters( 'replybox_replace_comments', $return );
+		return apply_filters( 'replybox_replace_comments', ! empty( $value ) );
 	}
 
 	/**
@@ -336,7 +336,9 @@ final class ReplyBox {
 	 * @return void
 	 */
 	public function activate() {
-		if ( empty( $this->get_option( 'secure_token' ) ) ) {
+		$value = $this->get_option( 'secure_token' );
+
+		if ( empty( $value ) ) {
 			$this->generate_token();
 		}
 	}
