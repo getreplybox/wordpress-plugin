@@ -276,7 +276,9 @@ final class ReplyBox {
 			'comment_date'         => get_date_from_gmt( $request['date_gmt'] ),
 		), true );
 
-		add_comment_meta( $id, 'replybox_id', (int) $request['id'], true );
+		if ( $id ) {
+			add_comment_meta( $id, 'replybox_id', (int) $request['id'], true );
+		}
 
 		return $id;
 	}
@@ -293,6 +295,8 @@ final class ReplyBox {
 			$comments[ $key ] = array(
 				'id'         => $comment->comment_ID,
 				'post'       => $comment->comment_post_ID,
+				'post_url'   => get_permalink( $comment->comment_post_ID ),
+				'post_title' => get_the_title( $comment->comment_post_ID ),
 				'parent'     => $comment->comment_parent,
 				'user_name'  => $comment->comment_author,
 				'user_email' => $comment->comment_author_email,
