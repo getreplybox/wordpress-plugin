@@ -10,6 +10,23 @@ License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 A simple, honest comment system which works everywhere. No ads, no dodgy affiliate links, no fluff.
 
+== Description ==
+
+**ReplyBox is currently in closed BETA. Want to try it out? [Sign up](https://getreplybox.com/) for an invite.**
+
+[ReplyBox](https://getreplybox.com/) is a simple, honest comment system which works everywhere. No ads, no dodgy affiliate links, no fluff.
+
+The ReplyBox WordPress plugin lets site owners easily add ReplyBox to their sites, replacing the default WordPress comment system.
+
+= Features =
+
+* Send your existing WordPress comments to ReplyBox
+* Syncs new comments to WordPress
+* Does not impact your site's performance
+* SEO friendly
+* Automatic spam filtering, powered by Akismet
+* Email notifications for newly posted comments
+
 == Changelog ==
 
 = 0.1 =
