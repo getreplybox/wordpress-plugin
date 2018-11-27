@@ -209,6 +209,17 @@ final class ReplyBox {
 				),
 			),
 		) );
+
+		register_rest_route( 'replybox/v1', '/comments', array(
+			'methods'  => 'PATCH',
+			'callback' => array( $this, 'patch_comments_endpoint' ),
+			'args'     => array(
+				'token' => array(
+					'required' => true,
+					'type'     => 'string',
+				),
+			),
+		) );
 	}
 
 	/**
@@ -281,6 +292,36 @@ final class ReplyBox {
 		}
 
 		return $id;
+	}
+
+	/**
+	 * PATCH comments API endpoint.
+	 *
+	 * @param WP_REST_Request $request
+	 *
+	 * @return array|WP_Error
+	 */	
+	public function patch_comments_endpoint( $request ) {
+		if ( $this->get_option( 'secure_token' ) !== $request['token'] ) {
+			return new WP_Error( 'token_incorrect', __( 'Sorry, incorrect secure token.', 'replybox' ),
+				array( 'status' => 403 ) );
+		}
+
+		$user = get_user_by( 'email', $request['email'] );
+
+		wp_update_comment( array(
+			'comment_ID'           => $request['id'],
+			'user_id'              => $user ? $user->ID : 0,
+			'comment_author'       => $user ? $user->display_name : $request['name'],
+			'comment_author_email' => $request['email'],
+			'comment_author_url'   => '',
+			'comment_content'      => $request['content'],
+			'comment_parent'       => (int) $request['parent'],
+			'comment_agent'        => 'ReplyBox',
+			'comment_approved'     => $request['spam'] ? 'spam' : 1,
+			'comment_date_gmt'     => $request['date_gmt'],
+			'comment_date'         => get_date_from_gmt( $request['date_gmt'] ),
+		) );
 	}
 
 	/**
