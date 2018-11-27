@@ -2,7 +2,7 @@
 /**
  * Plugin Name: ReplyBox
  * Description: A simple, honest comment system which works everywhere. No ads, no dodgy affiliate links, no fluff.
- * Version: 0.1
+ * Version: 0.2
  * Author: ReplyBox
  * Author URI: https://getreplybox.com
  */
