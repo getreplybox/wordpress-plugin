@@ -220,6 +220,17 @@ final class ReplyBox {
 				),
 			),
 		) );
+
+		register_rest_route( 'replybox/v1', '/comments', array(
+			'methods'  => 'DELETE',
+			'callback' => array( $this, 'delete_comments_endpoint' ),
+			'args'     => array(
+				'token' => array(
+					'required' => true,
+					'type'     => 'string',
+				),
+			),
+		) );
 	}
 
 	/**
@@ -322,6 +333,22 @@ final class ReplyBox {
 			'comment_date_gmt'     => $request['date_gmt'],
 			'comment_date'         => get_date_from_gmt( $request['date_gmt'] ),
 		) );
+	}
+
+	/**
+	 * DELETE comments API endpoint.
+	 *
+	 * @param WP_REST_Request $request
+	 *
+	 * @return array|WP_Error
+	 */	
+	public function delete_comments_endpoint( $request ) {
+		if ( $this->get_option( 'secure_token' ) !== $request['token'] ) {
+			return new WP_Error( 'token_incorrect', __( 'Sorry, incorrect secure token.', 'replybox' ),
+				array( 'status' => 403 ) );
+		}
+
+		wp_delete_comment( $request['id'], true );
 	}
 
 	/**
