@@ -4,7 +4,7 @@ Tags: comments, spam
 Requires at least: 4.7
 Tested up to: 4.9.8
 Requires PHP: 5.4
-Stable tag: 0.2
+Stable tag: 0.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -29,6 +29,9 @@ The ReplyBox WordPress plugin lets site owners easily add ReplyBox to their site
 * Markdown comments
 
 == Changelog ==
+
+= 0.3 =
+* Fix comment links not scrolling to the comments section.
 
 = 0.2 =
 * Added API endpoints for updating and deleting comments.
