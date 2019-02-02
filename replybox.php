@@ -2,7 +2,7 @@
 /**
  * Plugin Name: ReplyBox
  * Description: A simple, honest comment system which works everywhere. No ads, no dodgy affiliate links, no fluff.
- * Version: 0.3
+ * Version: 0.4
  * Author: ReplyBox
  * Author URI: https://getreplybox.com
  */
@@ -51,7 +51,7 @@ final class ReplyBox {
 
 		if ( $this->replace_comments() ) {
 			add_filter( 'comments_template', array( $this, 'comments_template' ), 100 );
-			add_filter( 'get_comment_link', array( $this, 'comment_link' ) );
+			add_filter( 'get_comment_link', array( $this, 'comment_link' ), 10, 2 );
 			add_filter( 'get_comments_link', array( $this, 'comments_link' ) );
 		}
 
@@ -411,8 +411,15 @@ final class ReplyBox {
 	 * @param string $link
 	 * @return string
 	 */
-	public function comment_link( $link ) {
-		return preg_replace( '/#comment-\d+/', '#replybox', $link );
+	public function comment_link( $link, $comment ) {
+		$hash = '#replybox';
+		$id   = get_comment_meta( $comment->comment_ID, 'replybox_id', true );
+
+		if ($id) {
+			$hash = '#comment-' . $id;
+		}
+
+		return preg_replace( '/#comment-\d+/', $hash, $link );
 	}
 
 	/**
