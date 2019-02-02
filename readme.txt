@@ -12,8 +12,6 @@ A simple, honest comment system which works everywhere. No ads, no dodgy affilia
 
 == Description ==
 
-**ReplyBox is currently in closed BETA. Want to try it out? [Sign up](https://getreplybox.com/) for an invite.**
-
 [ReplyBox](https://getreplybox.com/) is a simple, honest comment system which works everywhere. No ads, no dodgy affiliate links, no fluff.
 
 The ReplyBox WordPress plugin lets site owners easily add ReplyBox to their sites, replacing the default WordPress comment system.
