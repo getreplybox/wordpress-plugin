@@ -1,8 +1,8 @@
-=== ReplyBox ===
+=== ReplyBox - Better WordPress Comments ===
 Contributors: a5hleyrich
-Tags: comments, spam
+Tags: comment, comments
 Requires at least: 4.7
-Tested up to: 4.9.8
+Tested up to: 5.4.2
 Requires PHP: 5.4
 Stable tag: 0.4
 License: GPLv2 or later
