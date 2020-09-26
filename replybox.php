@@ -391,10 +391,15 @@ final class ReplyBox {
 	/**
 	 * Replace the default WordPress comments.
 	 *
+     * @param string $file
 	 * @return string
 	 */
-	public function comments_template() {
+	public function comments_template( $file ) {
 		global $post;
+
+		if ( ! $this->should_show_comment_embed( $post ) ) {
+			return $file;
+		}
 
 		wp_enqueue_script( 'replybox-js', $this->get_embed_url(), array(), null, true );
 		wp_localize_script( 'replybox-js', 'replybox', array(
@@ -403,6 +408,23 @@ final class ReplyBox {
 		) );
 
 		return plugin_dir_path( __FILE__ ) . 'views/comments.php';
+	}
+
+	/**
+	 * Should we show the comment embed?
+	 *
+	 * @param WP_Post $post
+	 *
+	 * @return bool
+	 */
+	protected function should_show_comment_embed( $post ) {
+		$show_embed = is_singular() && post_type_supports( $post->post_type, 'comments' );
+
+		if ( function_exists( 'is_product' ) && is_product() ) {
+			$show_embed = false;
+		}
+
+		return apply_filters( 'replybox_show_embed', $show_embed, $post );
 	}
 
 	/**
