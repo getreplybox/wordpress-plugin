@@ -2,9 +2,9 @@
 Contributors: a5hleyrich
 Tags: comment, comments
 Requires at least: 4.7
-Tested up to: 5.4.2
+Tested up to: 5.5.1
 Requires PHP: 5.4
-Stable tag: 0.4
+Stable tag: 0.4.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -27,6 +27,10 @@ The ReplyBox WordPress plugin lets site owners easily add ReplyBox to their site
 * Markdown comments
 
 == Changelog ==
+
+= 0.4.1 =
+* Don't show the ReplyBox embed on WooCommerce product pages.
+* Fix "PHP Notice: register_rest_route was called incorrectly".
 
 = 0.4 =
 * Enable linking to individual comments.

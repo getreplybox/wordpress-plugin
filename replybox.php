@@ -2,7 +2,7 @@
 /**
  * Plugin Name: ReplyBox
  * Description: A simple, honest comment system which works everywhere. No ads, no dodgy affiliate links, no fluff.
- * Version: 0.4
+ * Version: 0.4.1
  * Author: ReplyBox
  * Author URI: https://getreplybox.com
  */
@@ -87,7 +87,7 @@ final class ReplyBox {
 	 * Get a single option.
 	 *
 	 * @param string $key
-	 * @param mixed  $default
+	 * @param mixed $default
 	 *
 	 * @return mixed
 	 */
@@ -179,9 +179,10 @@ final class ReplyBox {
 	 */
 	public function register_api_endpoints() {
 		register_rest_route( 'replybox/v1', '/comments', array(
-			'methods'  => 'GET',
-			'callback' => array( $this, 'get_comments_endpoint' ),
-			'args'     => array(
+			'methods'             => 'GET',
+			'callback'            => array( $this, 'get_comments_endpoint' ),
+			'permission_callback' => '__return_true',
+			'args'                => array(
 				'page'     => array(
 					'default'           => 1,
 					'validate_callback' => function ( $param ) {
@@ -202,9 +203,10 @@ final class ReplyBox {
 		) );
 
 		register_rest_route( 'replybox/v1', '/comments', array(
-			'methods'  => 'POST',
-			'callback' => array( $this, 'post_comments_endpoint' ),
-			'args'     => array(
+			'methods'             => 'POST',
+			'callback'            => array( $this, 'post_comments_endpoint' ),
+			'permission_callback' => '__return_true',
+			'args'                => array(
 				'token' => array(
 					'required' => true,
 					'type'     => 'string',
@@ -213,9 +215,10 @@ final class ReplyBox {
 		) );
 
 		register_rest_route( 'replybox/v1', '/comments', array(
-			'methods'  => 'PATCH',
-			'callback' => array( $this, 'patch_comments_endpoint' ),
-			'args'     => array(
+			'methods'             => 'PATCH',
+			'callback'            => array( $this, 'patch_comments_endpoint' ),
+			'permission_callback' => '__return_true',
+			'args'                => array(
 				'token' => array(
 					'required' => true,
 					'type'     => 'string',
@@ -224,9 +227,10 @@ final class ReplyBox {
 		) );
 
 		register_rest_route( 'replybox/v1', '/comments', array(
-			'methods'  => 'DELETE',
-			'callback' => array( $this, 'delete_comments_endpoint' ),
-			'args'     => array(
+			'methods'             => 'DELETE',
+			'callback'            => array( $this, 'delete_comments_endpoint' ),
+			'permission_callback' => '__return_true',
+			'args'                => array(
 				'token' => array(
 					'required' => true,
 					'type'     => 'string',
@@ -313,7 +317,7 @@ final class ReplyBox {
 	 * @param WP_REST_Request $request
 	 *
 	 * @return array|WP_Error
-	 */	
+	 */
 	public function patch_comments_endpoint( $request ) {
 		if ( $this->get_option( 'secure_token' ) !== $request['token'] ) {
 			return new WP_Error( 'token_incorrect', __( 'Sorry, incorrect secure token.', 'replybox' ),
@@ -343,7 +347,7 @@ final class ReplyBox {
 	 * @param WP_REST_Request $request
 	 *
 	 * @return array|WP_Error
-	 */	
+	 */
 	public function delete_comments_endpoint( $request ) {
 		if ( $this->get_option( 'secure_token' ) !== $request['token'] ) {
 			return new WP_Error( 'token_incorrect', __( 'Sorry, incorrect secure token.', 'replybox' ),
@@ -391,7 +395,8 @@ final class ReplyBox {
 	/**
 	 * Replace the default WordPress comments.
 	 *
-     * @param string $file
+	 * @param string $file
+	 *
 	 * @return string
 	 */
 	public function comments_template( $file ) {
@@ -431,13 +436,14 @@ final class ReplyBox {
 	 * Filter a single comment link.
 	 *
 	 * @param string $link
+	 *
 	 * @return string
 	 */
 	public function comment_link( $link, $comment ) {
 		$hash = '#replybox';
 		$id   = get_comment_meta( $comment->comment_ID, 'replybox_id', true );
 
-		if ($id) {
+		if ( $id ) {
 			$hash = '#comment-' . $id;
 		}
 
@@ -448,6 +454,7 @@ final class ReplyBox {
 	 * Filter a post's comments link.
 	 *
 	 * @param string $link
+	 *
 	 * @return string
 	 */
 	public function comments_link( $link ) {
@@ -480,7 +487,7 @@ final class ReplyBox {
 	 * Remove pending from comment counts.
 	 *
 	 * @param array $stats
-	 * @param int   $post_id
+	 * @param int $post_id
 	 *
 	 * @return bool|mixed|object
 	 */
