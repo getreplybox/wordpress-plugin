@@ -406,11 +406,30 @@ final class ReplyBox {
 			return $file;
 		}
 
-		wp_enqueue_script( 'replybox-js', $this->get_embed_url(), array(), null, true );
-		wp_localize_script( 'replybox-js', 'replybox', array(
+		$data = array(
 			'site'       => $this->get_option( 'site_id' ),
 			'identifier' => $post->ID,
-		) );
+		);
+
+		$user = wp_get_current_user();
+
+		if ( defined( 'REPLYBOX_SSO_KEY' ) ) {
+			$payload = base64_encode( json_encode( array(
+				'user' => array(
+					'name'  => $user->display_name ?? null,
+					'email' => $user->user_email ?? null,
+				),
+				'login_url' => defined( 'REPLYBOX_SSO_LOGIN_URL' ) ? REPLYBOX_SSO_LOGIN_URL : null,
+			) ) );
+
+			$data['sso'] = array(
+				'hash'    => hash_hmac( 'sha256', $payload, REPLYBOX_SSO_KEY ),
+				'payload' => $payload,
+			);
+		}
+
+		wp_enqueue_script( 'replybox-js', $this->get_embed_url(), array(), null, true );
+		wp_localize_script( 'replybox-js', 'replybox', $data );
 
 		return plugin_dir_path( __FILE__ ) . 'views/comments.php';
 	}
