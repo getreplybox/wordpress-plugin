@@ -411,16 +411,17 @@ final class ReplyBox {
 			'identifier' => $post->ID,
 		);
 
-		$user = wp_get_current_user();
-
 		if ( defined( 'REPLYBOX_SSO_KEY' ) && REPLYBOX_SSO_KEY ) {
-			$payload = base64_encode( json_encode( array(
-				'user' => array(
-					'name'  => $user->display_name ?? null,
-					'email' => $user->user_email ?? null,
+			$user    = wp_get_current_user();
+			$payload = array(
+				'user'      => array(
+					'name'      => $user->display_name ?? null,
+					'email'     => $user->user_email ?? null,
+					'photo_url' => $user ? get_avatar_url( $user ) : null,
 				),
 				'login_url' => defined( 'REPLYBOX_SSO_LOGIN_URL' ) ? REPLYBOX_SSO_LOGIN_URL : null,
-			) ) );
+			);
+			$payload = base64_encode( json_encode( apply_filters( 'replybox_sso_payload', $payload, $user, $post ) ) );
 
 			$data['sso'] = array(
 				'hash'    => hash_hmac( 'sha256', $payload, REPLYBOX_SSO_KEY ),
