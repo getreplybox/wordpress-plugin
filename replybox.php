@@ -413,7 +413,7 @@ final class ReplyBox {
 
 		$user = wp_get_current_user();
 
-		if ( defined( 'REPLYBOX_SSO_KEY' ) ) {
+		if ( defined( 'REPLYBOX_SSO_KEY' ) && REPLYBOX_SSO_KEY ) {
 			$payload = base64_encode( json_encode( array(
 				'user' => array(
 					'name'  => $user->display_name ?? null,
