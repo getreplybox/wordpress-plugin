@@ -2,7 +2,7 @@
 /**
  * Plugin Name: ReplyBox
  * Description: A simple, honest comment system which works everywhere. No ads, no dodgy affiliate links, no fluff.
- * Version: 0.4.2
+ * Version: 0.5
  * Author: ReplyBox
  * Author URI: https://getreplybox.com
  */
@@ -406,11 +406,31 @@ final class ReplyBox {
 			return $file;
 		}
 
-		wp_enqueue_script( 'replybox-js', $this->get_embed_url(), array(), null, true );
-		wp_localize_script( 'replybox-js', 'replybox', array(
+		$data = array(
 			'site'       => $this->get_option( 'site_id' ),
 			'identifier' => $post->ID,
-		) );
+		);
+
+		if ( defined( 'REPLYBOX_SSO_KEY' ) && REPLYBOX_SSO_KEY ) {
+			$user    = wp_get_current_user();
+			$payload = array(
+				'user'      => array(
+					'name'      => $user->display_name ?? null,
+					'email'     => $user->user_email ?? null,
+					'photo_url' => $user ? get_avatar_url( $user ) : null,
+				),
+				'login_url' => defined( 'REPLYBOX_SSO_LOGIN_URL' ) ? REPLYBOX_SSO_LOGIN_URL : null,
+			);
+			$payload = base64_encode( json_encode( apply_filters( 'replybox_sso_payload', $payload, $user, $post ) ) );
+
+			$data['sso'] = array(
+				'hash'    => hash_hmac( 'sha256', $payload, REPLYBOX_SSO_KEY ),
+				'payload' => $payload,
+			);
+		}
+
+		wp_enqueue_script( 'replybox-js', $this->get_embed_url(), array(), null, true );
+		wp_localize_script( 'replybox-js', 'replybox', $data );
 
 		return plugin_dir_path( __FILE__ ) . 'views/comments.php';
 	}
