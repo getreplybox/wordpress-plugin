@@ -2,7 +2,7 @@
 /**
  * Plugin Name: ReplyBox
  * Description: A simple, honest comment system which works everywhere. No ads, no dodgy affiliate links, no fluff.
- * Version: 0.4.1
+ * Version: 0.4.2
  * Author: ReplyBox
  * Author URI: https://getreplybox.com
  */
@@ -423,7 +423,7 @@ final class ReplyBox {
 	 * @return bool
 	 */
 	protected function should_show_comment_embed( $post ) {
-		$show_embed = is_singular() && post_type_supports( $post->post_type, 'comments' );
+		$show_embed = is_singular() && post_type_supports( $post->post_type, 'comments' ) && comments_open( $post );
 
 		if ( function_exists( 'is_product' ) && is_product() ) {
 			$show_embed = false;

@@ -2,9 +2,9 @@
 Contributors: a5hleyrich
 Tags: comment, comments
 Requires at least: 4.7
-Tested up to: 5.5.1
+Tested up to: 5.5.3
 Requires PHP: 5.4
-Stable tag: 0.4.1
+Stable tag: 0.4.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -73,6 +73,9 @@ Our WordPress plugin means you get ReplyBox without having to do a thing. Once i
 **Comment Syncing:** Any new comments posted to ReplyBox will be synced to WordPress. Meaning, if at any point you disable the ReplyBox WordPress plugin, your comments will remain in WordPress.
 
 == Changelog ==
+
+= 0.4.2 =
+* Don't show the ReplyBox embed on post types with comments closed.
 
 = 0.4.1 =
 * Don't show the ReplyBox embed on WooCommerce product pages.
