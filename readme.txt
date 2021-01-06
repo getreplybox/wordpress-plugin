@@ -74,6 +74,9 @@ Our WordPress plugin means you get ReplyBox without having to do a thing. Once i
 
 == Changelog ==
 
+= 0.5 =
+* Add support for authenticating WordPress users with ReplyBox via single sign-on.
+
 = 0.4.2 =
 * Don't show the ReplyBox embed on post types with comments closed.
 
