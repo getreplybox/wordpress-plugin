@@ -27,11 +27,21 @@
     				</th>
     				<td>
 						<input type="text" name="secure_token" id="secure_token" value="<?php echo $this->get_option('secure_token'); ?>" class="regular-text" readonly>
-						<p class="description">
+						<p class="description" style="max-width: 40em;">
 							<?php printf(__('Enter your secure token under <strong>Site > Embed</strong> in %s. This will allow ReplyBox to sync comments with WordPress.', 'replybox'), '<a href="https://getreplybox.com" target="_blank">ReplyBox</a>'); ?>
 						</p>
     				</td>
     			</tr>
+                <tr>
+                    <th scope="row">
+                        <label><?php _e('WordPress Sign-In', 'replybox'); ?></label>
+                    </th>
+                    <td>
+                        <p class="description" style="max-width: 40em;">
+		                    <?php printf(__('Want to allow users to comment on posts or pages using their existing WordPress account? Check out our <a href="%s" target="_blank">WordPress Sign-In</a> doc.', 'replybox'), 'https://getreplybox.com/docs/wordpress-sign-in'); ?>
+                        </p>
+                    </td>
+                </tr>
     		</tbody>
     	</table>
 
